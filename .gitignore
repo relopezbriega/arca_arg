@@ -1,7 +1,7 @@
 # Exclude the following directories
-data/
+arca_api/data/
 .arca/
-__pycache__/
+arca_api/__pycache__/
 
 # Exclude the following files
 setup.cfg
