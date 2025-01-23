@@ -1,0 +1,9 @@
+# Exclude the following directories
+data/
+.arca/
+__pycache__/
+
+# Exclude the following files
+setup.cfg
+setup.py
+pyproject.toml
