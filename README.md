@@ -6,60 +6,78 @@ Cliente en Python para acceder a los servicios web de ARCA (Administración Fede
 
 - Gestión de tokens de autenticación
 - Integración con servicios SOAP de ARCA
-- Consultas de estado de inscripción de contribuyentes
+- Consultas de metodos y elementos
 - Soporte para entornos de producción y prueba
 
 ## Requisitos
 
 - Python 3.8+
 - cryptography
+- zeep
+- python-dateutil
 - Certificados de ARCA (prueba o producción)
 
 ## Instalación
 
 ```bash
-# Clonar el repositorio
-git clone https://github.com/yourusername/afip-client.git
-cd afip-client
-
-# Crear un entorno virtual
-python -m venv venv
-source venv/bin/activate
-
-# Instalar dependencias
-pip install -r requirements.txt
+pip install arca_arg
 ```
 ## Configuración
 
-1. Colocar los certificados en el directorio `data/`:
 
-```
-data/
-├── arcaTestCert.pem  # Certificado de ARCA
-└── arcaKeytest.key   # Clave privada
-```
-
-2. Configurar los ajustes en `settings.py`:
+1. Configurar los ajustes en `settings.py`:
 ```
 CUIT = "TU_CUIT_AQUI"
 PROD = False  # True para producción
+CERT_PATH = "carpeta con el certificado de arca"
+PRIVATE_KEY_PATH = "Carpeta con el la clave privada"
+TA_FILES_PATH="donde se guardaran temporalmente los token de acceso"
 ```
 ## Uso
 
 ```python
-from arca_api.ws_sr_constancia_inscripcion import ConstanciaService
+import arca_arg.settings as confg
 
-# Inicializar el servicio
-service = ConstanciaService()
+confg.PRIVATE_KEY_PATH = 'key/test.key'
+confg.CERT_PATH = 'cert/TestCert.pem'
+confg.TA_FILES_PATH = '/ta/'
+confg.CUIT = '20293188204'
 
-# Consultar el estado de inscripción de un contribuyente
-result = service.consultar_cuit(
-    cuit="20123456789",
-    cuitRepresentada=""
-)
+from arca_arg.wsService import ArcaWebService 
+from arca_arg.settings import WSDL_FEV1_HOM, WS_LIST
 
-# Verificar el estado del servidor
-status = service.server_status()
+arca_service = ArcaWebService(WSDL_FEV1_HOM, 'wsfe')  # Instancia del servicio web
+print(arca_service.listMethods()) # Lista de métodos del servicio inicializado
+print(arca_service.methodHelp('FECAESolicitar')) # Ayuda con el método consultarProvincias del servicio web
+print(arca_service.elementDetails('ns0:FECAEDetRequest')) # Ayuda de composición del elemento a enviar.
+
+auth = {'Token': arca_service.token, 'Sign': arca_service.sign, 'Cuit': arca_service.cuit,}
+cabecera = { 'CantReg': 1, 'PtoVta': 1, 'CbteTipo':1}
+detalle = {
+        'Concepto' : 1,
+        'DocTipo' : 80,
+        'DocNro': 27293188217,
+        'CbteDesde': 4,
+        'CbteHasta': 4,
+        'CbteFch': "20250124",
+        'ImpTotal':121,
+        'ImpTotConc': 0,
+        'ImpNeto': 100,
+        'ImpOpEx': 0,
+        'ImpIVA': 21,
+        'ImpTrib': 0,
+        'MonId': "PES",
+        'MonCotiz':1,
+        'Iva': {'AlicIva': {'Id': 5, 'BaseImp': 100, 'Importe': 21}}
+}
+# preparando los datos a enviar al ws
+data = {'Auth': auth, 
+        'FeCAEReq': { 'FeCabReq': cabecera, 'FeDetReq': {'FECAEDetRequest': detalle}}
+       }
+
+# envio del request
+arca_service.sendRequest('FECAESolicitar', data)
+  
 ```
 
 ## Estructura del Proyecto
@@ -68,19 +86,14 @@ arca_arg/
 ├── arca_api/
 │   ├── auth.py
 │   ├── settings.py
-│   ├── ws_service.py
-│   └── ws_sr_constancia_inscripcion.py
-├── data/
-├── examples/
-├── tests/
-├── requirements.txt
+│   ├── wsService.py
 └── README.md
 ```
 ## Contribuir
 
 ### Cómo Contribuir
 
-1. Hacer un fork del repositorio
+1. Hacer un fork del [repositorio](https://github.com/relopezbriega/arca_arg)
 2. Crear una rama para tu funcionalidad  (`git checkout -b feature/amazing-feature`)
 3. Confirmar tus cambios (`git commit -m 'Add some amazing feature'`)
 4. Subir a la rama(`git push origin feature/amazing-feature`)
@@ -112,9 +125,3 @@ Por favor, incluye la siguiente información al reportar problemas:
 
 - GitHub Issues: [Crear nuevo issue](https://github.com/relopezbriega/arca_arg/issues)
 - Email: relopezbriega@gmail.com
-
-### Documentación
-
-- [Documentación de la API](docs/api.md)
-- [Guía de Configuración](docs/configuration.md)
-- [Ejemplos](examples/)

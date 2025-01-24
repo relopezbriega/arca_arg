@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="arca_arg",
-    version="0.1.0",
+    version="0.1.3",
     packages=find_packages(),
     install_requires=[
         "zeep",           # Cliente SOAP
@@ -17,7 +17,7 @@ setup(
     description="API para interactuar con los Web Services de AFIP",
     long_description=open("README.md").read(),
     long_description_content_type="text/markdown",
-    url="https://github.com/relopezbriega/arca_arg",  # Reemplazar con tu repo
+    url="https://github.com/relopezbriega/arca_arg",  
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",

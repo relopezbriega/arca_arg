@@ -30,7 +30,7 @@ class ArcaWebService:
         self.token, self.sign = self.auth.get_token_sign()
         self.cuit = CUIT
 
-    def sendRequest(self, method_name: str, **kwargs: Dict[str, Any]) -> Any:
+    def sendRequest(self, method_name: str, data: Dict[str, Any], **kwargs: Dict[str, Any]) -> Any:
         """
         Llama a un método del servicio web con parámetros de autenticación.
 
@@ -44,7 +44,7 @@ class ArcaWebService:
         Ejemplo:
             >>> service.sendRequest('getPersona', **data)
         """
-        return getattr(self.client.service, method_name)(**kwargs)
+        return getattr(self.client.service, method_name)(**data, **kwargs)
     
     def listMethods(self) -> list:
         """
