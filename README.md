@@ -83,7 +83,7 @@ arca_service.sendRequest('FECAESolicitar', data)
 ## Estructura del Proyecto
 ```
 arca_arg/
-├── arca_api/
+├── arca_arg/
 │   ├── auth.py
 │   ├── settings.py
 │   ├── wsService.py
