@@ -1,9 +1,10 @@
 # Exclude the following directories
-arca_api/data/
+arca_arg/data/
 .arca/
-arca_api/__pycache__/
+arca_arg/__pycache__/
 
 # Exclude the following files
 setup.cfg
 setup.py
 pyproject.toml
+.gitignore

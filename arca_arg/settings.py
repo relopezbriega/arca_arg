@@ -1,9 +1,12 @@
-# ARCA API Settings
-CERT_PATH = "data/arcaTestCert.pem"
-PRIVATE_KEY_PATH = "data/raulotest.key"
-TA_FILES_PATH = "data/"  # Authorization Token storage path
-CUIT = "20293188204"  # Replace with your taxpayer ID
-PROD = False  # Change to True for production environment
+# ARCA_ARG Settings
+CERT_PATH = "data/arcaTestCert.pem" # Carpeta con el path al certificado
+PRIVATE_KEY_PATH = "data/raulotest.key" # Carpeta con el path a la clave privada
+TA_FILES_PATH = "data/"  # Carpeta con el path a los archivos TA
+CUIT = "20293188204"  # Reemplazar con el CUIT del contribuyente
+PROD = False  # Cambiar a True para producción
+
+# Lista de los servicios disponibles en ARCA
+WS_LIST =['ws_sr_constancia_inscripcion', 'ws_sr_padron_a10', 'wsfecred', 'wsfe', 'wslpg', 'wscpe']
 
 # WSAA
 WSDL_WSAA_HOM = "https://wsaahomo.afip.gov.ar/ws/services/LoginCms?wsdl" 
@@ -28,3 +31,7 @@ WSDL_FECRED_PROD = "https://serviciosjava.afip.gob.ar/wsfecred/FECredService?wsd
 # WSLPG Liquidacion Primaria de Granos
 WSDL_LPG_HOM = "https://fwshomo.afip.gov.ar/wslpg/LpgService?wsdl"
 WSDL_LPG_PROD = "https://serviciosjava.afip.gob.ar/wslpg/LpgService?wsdl"
+
+# WSCPE Carta de Porte Electronica
+WSDL_CPE_HOM = "https://cpea-ws-qaext.afip.gob.ar/wscpe/services/soap?wsdl"
+WSDL_CPE_PROD = "https://cpea-ws.afip.gob.ar/wscpe/services/soap?wsdl"

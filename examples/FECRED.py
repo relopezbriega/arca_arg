@@ -5,7 +5,7 @@ from dataclasses import asdict
 # Add the parent directory to the Python path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from arca_api.wsfecred import FECREDService, idComprobante, FECredActeptar, motivoRechazo
+from arca_api.wsfecred import FECREDService, idComprobante, FECredActeptar, idCtaCte, motivoRechazo
 
 if __name__ == "__main__":
     arca_service = FECREDService()
@@ -33,14 +33,13 @@ if __name__ == "__main__":
     #print(cpbte)
     #print(arca_service.consultarHistorialEstadosComprobante(cpbte))
     #print(arca_service.consultarHistorialEstadosCtaCte(1))
+    ctacte = idCtaCte(codCtaCte=1)
     data = asdict(FECredActeptar(
-        idCtaCte=1,
+        idCtaCte=ctacte,
         saldoAceptado=1000,
         codMoneda='PES',
         cotizacionMonedaUlt=1,
-    ))
-    #print(data)
-        
+    ))        
     #print(arca_service.aceptarFECred(**data)) ## revisar
     rechazo = asdict(motivoRechazo(
         codMotivo=6,
