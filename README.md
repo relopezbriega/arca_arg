@@ -49,7 +49,7 @@ from arca_arg.settings import WSDL_FEV1_HOM, WS_LIST
 arca_service = ArcaWebService(WSDL_FEV1_HOM, 'wsfe')  # Instancia del servicio web
 print(arca_service.listMethods()) # Lista de métodos del servicio inicializado
 print(arca_service.methodHelp('FECAESolicitar')) # Ayuda con el método consultarProvincias del servicio web
-print(arca_service.elementDetails('ns0:FECAEDetRequest')) # Ayuda de composición del elemento a enviar.
+print(arca_service.get_type('FECAEDetRequest')) # Ayuda de composición del elemento a enviar.
 
 auth = {'Token': arca_service.token, 'Sign': arca_service.sign, 'Cuit': arca_service.cuit,}
 cabecera = { 'CantReg': 1, 'PtoVta': 1, 'CbteTipo':1}
