@@ -1,7 +1,7 @@
 import logging
 from zeep import Client, exceptions
 from .auth import ArcaAuth
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 from .settings import CUIT
 from zeep.xsd.types.complex import ComplexType
 
@@ -27,13 +27,14 @@ class ArcaWebService:
         complex_types: Lista de tipos complejos disponibles en el servicio web
     """
     
-    def __init__(self, wsdl_url: str, service_name: str) -> None:
+    def __init__(self, wsdl_url: str, service_name: str, enable_logging: bool = True) -> None:
         """
         Inicializa el servicio web con la URL del WSDL y el nombre del servicio.
 
         Args:
             wsdl_url: URL del archivo de definición WSDL
             service_name: Nombre del servicio de AFIP al que se conecta
+            enable_logging: Habilita o deshabilita el logging (opcional, por defecto True)
         """
         self.client = Client(wsdl_url)
         self.auth = ArcaAuth(service_name)
@@ -42,6 +43,13 @@ class ArcaWebService:
         self.wsdl_url = wsdl_url
         self.service_name = service_name
         self._complex_types = self._getComplexTypes()
+        self.enable_logging = enable_logging
+
+        if self.enable_logging:
+            logging.basicConfig(level=logging.INFO)
+            self.logger = logging.getLogger(__name__)
+        else:
+            self.logger = None
 
     def sendRequest(self, method_name: str, data: Dict[str, Any], response_type: str = None, **kwargs: Dict[str, Any]) -> Any:
         """
@@ -63,13 +71,15 @@ class ArcaWebService:
             >>> service.sendRequest('getPersona', data, response_type='Persona')
         """
         try:
-            logger.info(f"Llamando al método {method_name} con datos: {data}")
+            if self.logger:
+                self.logger.info(f"Llamando al método {method_name} con datos: {data}")
             response = getattr(self.client.service, method_name)(**data, **kwargs)
             if response_type:
                 return self.client.get_type(response_type)(response)
             return response
         except exceptions.Error as e:
-            logger.error(f"Error al llamar al método {method_name}: {e}")
+            if self.logger:
+                self.logger.error(f"Error al llamar al método {method_name}: {e}")
             raise
     
     def listMethods(self) -> List[str]:
@@ -165,4 +175,3 @@ class ArcaWebService:
         copy_types = dict(self._complex_types)
 
         return copy_types[type_name]
-    
