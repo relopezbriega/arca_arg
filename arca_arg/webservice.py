@@ -2,6 +2,7 @@ from zeep import Client
 from .auth import ArcaAuth
 from typing import Any, Dict
 from .settings import CUIT
+from zeep.xsd.types.complex import ComplexType
 
 class ArcaWebService:
     """
@@ -15,6 +16,10 @@ class ArcaWebService:
         auth: Manejador de autenticación para los servicios de AFIP
         token: Token de autenticación actual
         sign: Firma de autenticación actual
+        cuit: CUIT del contribuyente
+        wsdl_url: URL del archivo de definición WSDL
+        service_name: Nombre del servicio de AFIP al que se conecta
+        complex_types: Lista de tipos complejos disponibles en el servicio web
     """
     
     def __init__(self, wsdl_url: str, service_name: str) -> None:
@@ -29,6 +34,9 @@ class ArcaWebService:
         self.auth = ArcaAuth(service_name)
         self.token, self.sign = self.auth.get_token_sign()
         self.cuit = CUIT
+        self.wsdl_url = wsdl_url
+        self.service_name = service_name
+        self._complex_types = self._getComplexTypes()
 
     def sendRequest(self, method_name: str, data: Dict[str, Any], **kwargs: Dict[str, Any]) -> Any:
         """
@@ -85,3 +93,77 @@ class ArcaWebService:
             salida[name] = str(type.type)
 
         return salida
+    
+    def dumpWSDL(self) -> str:
+        """
+        Muestra el contenido del archivo WSDL del servicio web.
+
+        Returns:
+            El contenido del archivo WSDL del servicio web
+        """
+        return self.client.wsdl.dump()
+
+    def _linkedComplexTypes(self) -> Dict[str, Any]:
+        """
+        Obtiene la lista de tipos complejos disponibles en el servicio web.
+
+        Returns:
+            Lista de tipos complejos disponibles en el servicio web
+        """
+        linked_complex_types_dict = {}
+
+        for element in self.client.wsdl.types.types:
+            if isinstance(element, ComplexType):
+                linked_complex_types_dict[element.name] = element
+
+        return linked_complex_types_dict
+    
+    
+    def _getComplexTypes(self) -> Dict[str, Any]:
+        """
+        Obtiene la lista de tipos complejos disponibles en el servicio web.
+
+        Returns:
+            Lista de tipos complejos disponibles en el servicio web
+        """
+        complex_types_dict = {}
+
+        for element in self.client.wsdl.types.types:
+            if isinstance(element, ComplexType):
+                try:
+                    element_values = element()
+                except:
+                    pass
+                complex_types_dict[element.name] = element_values
+
+        linked_types = self._linkedComplexTypes()
+
+        for key, value in linked_types.items():
+            if value is not None:
+                for name, type_ in value.elements:
+                    if isinstance(type_.type, ComplexType):
+                        complex_types_dict[key][name] = linked_types[type_.type.name].name
+
+        del(linked_types)
+
+        return complex_types_dict
+
+    def get_type(self, type_name : str) -> Dict[str, Any]:
+        """
+        Devuelve el diccionario del tipo complejo especificado.
+
+        Args:
+            type_name: nombre del tipo complejo. 
+
+        Returns:
+            Diccionario del tipo complejo.
+        """
+        copy_types = dict(self._complex_types)
+
+        return copy_types[type_name]
+    
+"""
+TODO: Implementar el manejo de excepciones en la clase ArcaWebService
+modificar el metodo sendRequest para que reciba el tipo de respuesta y la devuelva
+ver si se puede generar data para cada service method en forma recursiva
+"""
