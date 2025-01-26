@@ -1,8 +1,13 @@
-from zeep import Client
+import logging
+from zeep import Client, exceptions
 from .auth import ArcaAuth
-from typing import Any, Dict
+from typing import Any, Dict, List
 from .settings import CUIT
 from zeep.xsd.types.complex import ComplexType
+
+# Configuración básica de logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 class ArcaWebService:
     """
@@ -38,32 +43,47 @@ class ArcaWebService:
         self.service_name = service_name
         self._complex_types = self._getComplexTypes()
 
-    def sendRequest(self, method_name: str, data: Dict[str, Any], **kwargs: Dict[str, Any]) -> Any:
+    def sendRequest(self, method_name: str, data: Dict[str, Any], response_type: str = None, **kwargs: Dict[str, Any]) -> Any:
         """
         Llama a un método del servicio web con parámetros de autenticación.
 
         Args:
             method_name: Nombre del método SOAP a llamar
+            data: Diccionario con los datos a enviar al método SOAP
+            response_type: Tipo de respuesta esperada (opcional)
             **kwargs: Parámetros adicionales para el método SOAP
 
         Returns:
             La respuesta del método del servicio web
 
+        Raises:
+            exceptions.Error: Si ocurre un error en la llamada al servicio web
+
         Ejemplo:
-            >>> service.sendRequest('getPersona', **data)
+            >>> service.sendRequest('getPersona', data, response_type='Persona')
         """
-        return getattr(self.client.service, method_name)(**data, **kwargs)
+        try:
+            logger.info(f"Llamando al método {method_name} con datos: {data}")
+            response = getattr(self.client.service, method_name)(**data, **kwargs)
+            if response_type:
+                return self.client.get_type(response_type)(response)
+            return response
+        except exceptions.Error as e:
+            logger.error(f"Error al llamar al método {method_name}: {e}")
+            raise
     
-    def listMethods(self) -> list:
+    def listMethods(self) -> List[str]:
         """
         Lista los métodos disponibles del servicios web disponibles en ARCA.
 
         Returns:
             Lista de los nombres de los servicios web disponibles
         """
+        methods = []
         for service in self.client.wsdl.services.values():
             for port in service.ports.values():
-                return [operation.name for operation in port.binding._operations.values()]
+                methods.extend([operation.name for operation in port.binding._operations.values()])
+        return methods
             
     def methodHelp(self, method_name: str) -> str:
         """
@@ -77,22 +97,6 @@ class ArcaWebService:
         """
         return self.client.service.__getattr__(method_name).__doc__
 
-    def elementDetails(self, element: str) -> list:
-        """
-        Muestra los parámetros de entrada de un método del servicio web.
-
-        Args:
-            element: Nombre del elemento SOAP a consultar
-
-        Returns:
-            Los parámetros del elemento del servicio web
-        """
-        data = self.client.get_type(element).elements
-        salida = { }
-        for name, type in data:
-            salida[name] = str(type.type)
-
-        return salida
     
     def dumpWSDL(self) -> str:
         """
@@ -162,8 +166,3 @@ class ArcaWebService:
 
         return copy_types[type_name]
     
-"""
-TODO: Implementar el manejo de excepciones en la clase ArcaWebService
-modificar el metodo sendRequest para que reciba el tipo de respuesta y la devuelva
-ver si se puede generar data para cada service method en forma recursiva
-"""

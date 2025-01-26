@@ -43,7 +43,7 @@ confg.CERT_PATH = 'cert/TestCert.pem'
 confg.TA_FILES_PATH = '/ta/'
 confg.CUIT = '20293188204'
 
-from arca_arg.wsService import ArcaWebService 
+from arca_arg.webservice import ArcaWebService 
 from arca_arg.settings import WSDL_FEV1_HOM, WS_LIST
 
 arca_service = ArcaWebService(WSDL_FEV1_HOM, 'wsfe')  # Instancia del servicio web
@@ -86,7 +86,7 @@ arca_arg/
 ├── arca_arg/
 │   ├── auth.py
 │   ├── settings.py
-│   ├── wsService.py
+│   ├── webservice.py
 └── README.md
 ```
 ## Contribuir

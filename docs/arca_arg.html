@@ -26,7 +26,7 @@
             <ul>
                     <li><a href="arca_arg/auth.html">auth</a></li>
                     <li><a href="arca_arg/settings.html">settings</a></li>
-                    <li><a href="arca_arg/wsService.html">wsService</a></li>
+                    <li><a href="arca_arg/webservice.html">webservice</a></li>
             </ul>
 
 
@@ -40,131 +40,13 @@
     </nav>
     <main class="pdoc">
             <section class="module-info">
-                    
-<h1 id="cliente-de-servicios-web-de-arca">Cliente de Servicios Web de
-ARCA</h1>
-<p>Cliente en Python para acceder a los servicios web de ARCA
-(Administración Federal de Ingresos Públicos de Argentina). Maneja la
-autenticación y la comunicación con los servicios SOAP de ARCA.</p>
-<h1 id="características">Características</h1>
-<ul>
-<li>Gestión de tokens de autenticación</li>
-<li>Integración con servicios SOAP de ARCA</li>
-<li>Consultas de metodos y elementos</li>
-<li>Soporte para entornos de producción y prueba</li>
-</ul>
-<h2 id="requisitos">Requisitos</h2>
-<ul>
-<li>Python 3.8+</li>
-<li>cryptography</li>
-<li>zeep</li>
-<li>python-dateutil</li>
-<li>Certificados de ARCA (prueba o producción)</li>
-</ul>
-<h2 id="instalación">Instalación</h2>
-<div class="sourceCode" id="cb1"><pre
-class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pip</span> install arca_arg</span></code></pre></div>
-<h2 id="configuración">Configuración</h2>
-<ol type="1">
-<li>Configurar los ajustes en <code>settings.py</code>:</li>
-</ol>
-<pre><code>CUIT = &quot;TU_CUIT_AQUI&quot;
-PROD = False  # True para producción
-CERT_PATH = &quot;carpeta con el certificado de arca&quot;
-PRIVATE_KEY_PATH = &quot;Carpeta con el la clave privada&quot;
-TA_FILES_PATH=&quot;donde se guardaran temporalmente los token de acceso&quot;</code></pre>
-<h2 id="uso">Uso</h2>
-<div class="sourceCode" id="cb3"><pre
-class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> arca_arg.settings <span class="im">as</span> confg</span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>confg.PRIVATE_KEY_PATH <span class="op">=</span> <span class="st">&#39;key/test.key&#39;</span></span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>confg.CERT_PATH <span class="op">=</span> <span class="st">&#39;cert/TestCert.pem&#39;</span></span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>confg.TA_FILES_PATH <span class="op">=</span> <span class="st">&#39;/ta/&#39;</span></span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>confg.CUIT <span class="op">=</span> <span class="st">&#39;20293188204&#39;</span></span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> arca_arg.wsService <span class="im">import</span> ArcaWebService </span>
-<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> arca_arg.settings <span class="im">import</span> WSDL_FEV1_HOM, WS_LIST</span>
-<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>arca_service <span class="op">=</span> ArcaWebService(WSDL_FEV1_HOM, <span class="st">&#39;wsfe&#39;</span>)  <span class="co"># Instancia del servicio web</span></span>
-<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(arca_service.listMethods()) <span class="co"># Lista de métodos del servicio inicializado</span></span>
-<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(arca_service.methodHelp(<span class="st">&#39;FECAESolicitar&#39;</span>)) <span class="co"># Ayuda con el método consultarProvincias del servicio web</span></span>
-<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(arca_service.elementDetails(<span class="st">&#39;ns0:FECAEDetRequest&#39;</span>)) <span class="co"># Ayuda de composición del elemento a enviar.</span></span>
-<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>auth <span class="op">=</span> {<span class="st">&#39;Token&#39;</span>: arca_service.token, <span class="st">&#39;Sign&#39;</span>: arca_service.sign, <span class="st">&#39;Cuit&#39;</span>: arca_service.cuit,}</span>
-<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>cabecera <span class="op">=</span> { <span class="st">&#39;CantReg&#39;</span>: <span class="dv">1</span>, <span class="st">&#39;PtoVta&#39;</span>: <span class="dv">1</span>, <span class="st">&#39;CbteTipo&#39;</span>:<span class="dv">1</span>}</span>
-<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>detalle <span class="op">=</span> {</span>
-<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>        <span class="st">&#39;Concepto&#39;</span> : <span class="dv">1</span>,</span>
-<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>        <span class="st">&#39;DocTipo&#39;</span> : <span class="dv">80</span>,</span>
-<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>        <span class="st">&#39;DocNro&#39;</span>: <span class="dv">27293188217</span>,</span>
-<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>        <span class="st">&#39;CbteDesde&#39;</span>: <span class="dv">4</span>,</span>
-<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>        <span class="st">&#39;CbteHasta&#39;</span>: <span class="dv">4</span>,</span>
-<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>        <span class="st">&#39;CbteFch&#39;</span>: <span class="st">&quot;20250124&quot;</span>,</span>
-<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>        <span class="st">&#39;ImpTotal&#39;</span>:<span class="dv">121</span>,</span>
-<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>        <span class="st">&#39;ImpTotConc&#39;</span>: <span class="dv">0</span>,</span>
-<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a>        <span class="st">&#39;ImpNeto&#39;</span>: <span class="dv">100</span>,</span>
-<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a>        <span class="st">&#39;ImpOpEx&#39;</span>: <span class="dv">0</span>,</span>
-<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a>        <span class="st">&#39;ImpIVA&#39;</span>: <span class="dv">21</span>,</span>
-<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a>        <span class="st">&#39;ImpTrib&#39;</span>: <span class="dv">0</span>,</span>
-<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a>        <span class="st">&#39;MonId&#39;</span>: <span class="st">&quot;PES&quot;</span>,</span>
-<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a>        <span class="st">&#39;MonCotiz&#39;</span>:<span class="dv">1</span>,</span>
-<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a>        <span class="st">&#39;Iva&#39;</span>: {<span class="st">&#39;AlicIva&#39;</span>: {<span class="st">&#39;Id&#39;</span>: <span class="dv">5</span>, <span class="st">&#39;BaseImp&#39;</span>: <span class="dv">100</span>, <span class="st">&#39;Importe&#39;</span>: <span class="dv">21</span>}}</span>
-<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a><span class="co"># preparando los datos a enviar al ws</span></span>
-<span id="cb3-36"><a href="#cb3-36" aria-hidden="true" tabindex="-1"></a>data <span class="op">=</span> {<span class="st">&#39;Auth&#39;</span>: auth, </span>
-<span id="cb3-37"><a href="#cb3-37" aria-hidden="true" tabindex="-1"></a>        <span class="st">&#39;FeCAEReq&#39;</span>: { <span class="st">&#39;FeCabReq&#39;</span>: cabecera, <span class="st">&#39;FeDetReq&#39;</span>: {<span class="st">&#39;FECAEDetRequest&#39;</span>: detalle}}</span>
-<span id="cb3-38"><a href="#cb3-38" aria-hidden="true" tabindex="-1"></a>       }</span>
-<span id="cb3-39"><a href="#cb3-39" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-40"><a href="#cb3-40" aria-hidden="true" tabindex="-1"></a><span class="co"># envio del request</span></span>
-<span id="cb3-41"><a href="#cb3-41" aria-hidden="true" tabindex="-1"></a>arca_service.sendRequest(<span class="st">&#39;FECAESolicitar&#39;</span>, data)</span>
-<span id="cb3-42"><a href="#cb3-42" aria-hidden="true" tabindex="-1"></a>  </span></code></pre></div>
-<h2 id="estructura-del-proyecto">Estructura del Proyecto</h2>
-<pre><code>arca_arg/
-├── arca_arg/
-│   ├── auth.py
-│   ├── settings.py
-│   ├── wsService.py
-└── README.md</code></pre>
-<h2 id="contribuir">Contribuir</h2>
-<h3 id="cómo-contribuir">Cómo Contribuir</h3>
-<ol type="1">
-<li>Hacer un fork del <a
-href="https://github.com/relopezbriega/arca_arg">repositorio</a></li>
-<li>Crear una rama para tu funcionalidad
-(<code>git checkout -b feature/amazing-feature</code>)</li>
-<li>Confirmar tus cambios
-(<code>git commit -m 'Add some amazing feature'</code>)</li>
-<li>Subir a la
-rama(<code>git push origin feature/amazing-feature</code>)</li>
-<li>Abrir un Pull Request</li>
-</ol>
-<h3 id="directrices-de-desarrollo">Directrices de Desarrollo</h3>
-<ul>
-<li>Seguir la guía de estilo PEP 8</li>
-<li>Añadir pruebas unitarias para nuevas funcionalidades</li>
-<li>Actualizar la documentación según sea necesario</li>
-<li>Usar anotaciones de tipo para el nuevo código</li>
-</ul>
-<h2 id="licencia">Licencia</h2>
-<p>Este proyecto está licenciado bajo la Licencia MIT - ver el archivo
-<a href="LICENSE">LICENSE</a> para más detalles.</p>
-<h2 id="soporte">Soporte</h2>
-<h3 id="reporte-de-problemas">Reporte de Problemas</h3>
-<p>Por favor, incluye la siguiente información al reportar
-problemas:</p>
-<ul>
-<li>Descripción detallada del problema</li>
-<li>Pasos para reproducir</li>
-<li>Comportamiento esperado vs comportamiento actual</li>
-<li>Versión de Python y detalles del entorno</li>
-</ul>
-<h3 id="contacto">Contacto</h3>
-<ul>
-<li>GitHub Issues: <a
-href="https://github.com/relopezbriega/arca_arg/issues">Crear nuevo
-issue</a></li>
-<li>Email: relopezbriega@gmail.com</li>
-</ul>
+                    <h1 class="modulename">
+arca_arg    </h1>
 
+                
+                
+                
+                
             </section>
     </main>
 <script>
