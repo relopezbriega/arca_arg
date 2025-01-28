@@ -4,6 +4,7 @@ from .auth import ArcaAuth
 from typing import Any, Dict, List, Optional
 from .settings import CUIT
 from zeep.xsd.types.complex import ComplexType
+from lxml import etree
 
 # Configuración básica de logging
 logging.basicConfig(level=logging.INFO)
@@ -42,7 +43,7 @@ class ArcaWebService:
         self.cuit = CUIT
         self.wsdl_url = wsdl_url
         self.service_name = service_name
-        self._complex_types = self._getComplexTypes()
+        self._complex_types = self._get_complex_types()
         self.enable_logging = enable_logging
 
         if self.enable_logging:
@@ -51,7 +52,7 @@ class ArcaWebService:
         else:
             self.logger = None
 
-    def sendRequest(self, method_name: str, data: Dict[str, Any], response_type: str = None, **kwargs: Dict[str, Any]) -> Any:
+    def send_request(self, method_name: str, data: Dict[str, Any], response_type: str = None, **kwargs: Dict[str, Any]) -> Any:
         """
         Llama a un método del servicio web con parámetros de autenticación.
 
@@ -68,7 +69,7 @@ class ArcaWebService:
             exceptions.Error: Si ocurre un error en la llamada al servicio web
 
         Ejemplo:
-            >>> service.sendRequest('getPersona', data, response_type='Persona')
+            >>> service.send_request('getPersona', data, response_type='Persona')
         """
         try:
             if self.logger:
@@ -82,7 +83,7 @@ class ArcaWebService:
                 self.logger.error(f"Error al llamar al método {method_name}: {e}")
             raise
     
-    def listMethods(self) -> List[str]:
+    def list_methods(self) -> List[str]:
         """
         Lista los métodos disponibles del servicios web disponibles en ARCA.
 
@@ -95,7 +96,7 @@ class ArcaWebService:
                 methods.extend([operation.name for operation in port.binding._operations.values()])
         return methods
             
-    def methodHelp(self, method_name: str) -> str:
+    def method_help(self, method_name: str) -> str:
         """
         Muestra la documentación de un método del servicio web.
 
@@ -106,9 +107,24 @@ class ArcaWebService:
             La documentación del método del servicio web
         """
         return self.client.service.__getattr__(method_name).__doc__
+    
+    def create_message(self, method_name: str, data: Dict[str, Any]) -> str:
+        """_summary_
+
+        Args:
+            method_name: Nombre del método SOAP a llamar
+            data: Diccionario con los datos a enviar al método SOAP
+
+        Returns:
+            str: el xml con el mensaje que se va a enviar al método.
+        """
+        xml = self.client.create_message(self.client.service, method_name, **data)
+        pretty_xml = etree.tostring(xml, pretty_print=True, encoding="utf-8").decode("utf-8")
+        
+        return pretty_xml
 
     
-    def dumpWSDL(self) -> str:
+    def dump_wsdl(self) -> str:
         """
         Muestra el contenido del archivo WSDL del servicio web.
 
@@ -117,7 +133,7 @@ class ArcaWebService:
         """
         return self.client.wsdl.dump()
 
-    def _linkedComplexTypes(self) -> Dict[str, Any]:
+    def _linked_complex_types(self) -> Dict[str, Any]:
         """
         Obtiene la lista de tipos complejos disponibles en el servicio web.
 
@@ -133,7 +149,7 @@ class ArcaWebService:
         return linked_complex_types_dict
     
     
-    def _getComplexTypes(self) -> Dict[str, Any]:
+    def _get_complex_types(self) -> Dict[str, Any]:
         """
         Obtiene la lista de tipos complejos disponibles en el servicio web.
 
@@ -150,7 +166,7 @@ class ArcaWebService:
                     pass
                 complex_types_dict[element.name] = element_values
 
-        linked_types = self._linkedComplexTypes()
+        linked_types = self._linked_complex_types()
 
         for key, value in linked_types.items():
             if value is not None:

@@ -47,8 +47,8 @@ from arca_arg.webservice import ArcaWebService
 from arca_arg.settings import WSDL_FEV1_HOM, WS_LIST
 
 arca_service = ArcaWebService(WSDL_FEV1_HOM, 'wsfe')  # Instancia del servicio web
-print(arca_service.listMethods()) # Lista de métodos del servicio inicializado
-print(arca_service.methodHelp('FECAESolicitar')) # Ayuda con el método consultarProvincias del servicio web
+print(arca_service.list_methods()) # Lista de métodos del servicio inicializado
+print(arca_service.method_help('FECAESolicitar')) # Ayuda con el método consultarProvincias del servicio web
 print(arca_service.get_type('FECAEDetRequest')) # Ayuda de composición del elemento a enviar.
 
 auth = {'Token': arca_service.token, 'Sign': arca_service.sign, 'Cuit': arca_service.cuit,}
@@ -74,9 +74,11 @@ detalle = {
 data = {'Auth': auth, 
         'FeCAEReq': { 'FeCabReq': cabecera, 'FeDetReq': {'FECAEDetRequest': detalle}}
        }
+# imprimir el xml que se va enviar antes de procesarlo
+print(arca_service.create_message('FECAESolicitar', data)
 
 # envio del request
-arca_service.sendRequest('FECAESolicitar', data)
+arca_service.send_request('FECAESolicitar', data)
   
 ```
 
