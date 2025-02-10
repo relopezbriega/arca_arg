@@ -24,6 +24,7 @@ WS_LIST =['ws_sr_constancia_inscripcion'
           ,'wsremharina'
           ,'wsremazucar'
           ,'wsremcarne'
+          ,'wsmtxca'
           ]
 
 # WSAA
@@ -93,4 +94,8 @@ WSDL_REMHARINA_PROD = "https://serviciosjava.afip.gob.ar/wsremazucar/RemAzucarSe
 # WSREMCARNE
 WSDL_REMCARNE_HOM = "https://fwshomo.afip.gov.ar/wsremcarne/RemCarneService?"
 WSDL_REMCARNE_PROD = "https://serviciosjava.afip.gob.ar/wsremcarne/RemCarneService?wsdl"
+
+# WSMTXCA
+WSDL_MTXCA_HOM = "https://fwshomo.afip.gov.ar/wsmtxca/services/MTXCAService?wsdl" 
+WSDL_MTXCA_PROD = "https://serviciosjava.afip.gob.ar/wsmtxca/services/MTXCAService?wsdl"
 

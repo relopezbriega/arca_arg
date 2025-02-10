@@ -1,4 +1,5 @@
 import datetime
+import pytz
 import base64
 import os
 import xml.etree.ElementTree as ET
@@ -14,6 +15,8 @@ from typing import Tuple
 
 TOKEN_EXPIRATION_OFFSET = -600
 WSDL_WSAA = WSDL_WSAA_HOM if not PROD else WSDL_WSAA_PROD
+
+tz_buenos_aires = pytz.timezone("America/Argentina/Buenos_Aires")
 
 class LoginTicket:
     """
@@ -68,7 +71,7 @@ class ArcaAuth:
     def create_tra(self, expiration_time):
         """Genera el XML para el Ticket Request Access (TRA)."""
         
-        now = datetime.datetime.now()
+        now = datetime.datetime.now(tz_buenos_aires)
         return f"""<?xml version="1.0" encoding="UTF-8"?>
         <loginTicketRequest version="1.0">
             <header>
@@ -125,7 +128,7 @@ class ArcaAuth:
             WSError: Si la solicitud SOAP falla
             AuthError: Si la respuesta de autenticación es inválida
         """
-        expiration_time = datetime.datetime.now() + datetime.timedelta(hours=12)
+        expiration_time = datetime.datetime.now(tz_buenos_aires) + datetime.timedelta(hours=12)
         tra = self.create_tra(expiration_time)  # Crear solicitud de ticket
         signed_cms = self.sign_tra(tra)  # Firmar la solicitud
 
